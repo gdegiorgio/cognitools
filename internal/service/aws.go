@@ -48,21 +48,20 @@ func (svc *AWSSevice) ListPools() ([]CognitoPool, error) {
 
 	var nextToken *string = nil
 
-	params := cognitoidentityprovider.ListUserPoolsInput{
-		MaxResults: &maxResult,
-		NextToken:  nextToken,
-	}
-
-	res, err := svc.client.ListUserPools(context.TODO(), &params)
-
-	if err != nil {
-		return nil, fmt.Errorf("could not list cognito pools: %v", err)
-	}
-
-	poolsId := []CognitoPool{}
-
 	for {
 
+		params := cognitoidentityprovider.ListUserPoolsInput{
+			MaxResults: &maxResult,
+			NextToken:  nextToken,
+		}
+
+		res, err := svc.client.ListUserPools(context.TODO(), &params)
+
+		if err != nil {
+			return nil, fmt.Errorf("could not list cognito pools: %v", err)
+		}
+
+		poolsId := []CognitoPool{}
 		for _, p := range res.UserPools {
 
 			pool := &CognitoPool{
