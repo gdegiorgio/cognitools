@@ -38,6 +38,19 @@ func runGenerate(cmd *cobra.Command, args []string) {
 		fmt.Printf("failed to select user pool: %v", err)
 	}
 
-	fmt.Printf("You selected %s\n", pools[idx].Name)
+	clients, err := svc.ListClients(pools[idx].PoolId)
 
+	if err != nil {
+		fmt.Printf("failed to list clients: %v", err)
+	}
+
+	for _, c := range clients {
+		selectInput = append(selectInput, fmt.Sprintf("%s - %s", c.Name, c.ClientId))
+	}
+
+	_, err = pkg.SelectClients(selectInput)
+
+	scope, err := pkg.SelectScope(selectInput)
+
+	fmt.Printf("Selected scope: %s\n", scope)
 }
