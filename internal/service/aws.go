@@ -18,6 +18,16 @@ type CognitoPool struct {
 	Name   string
 }
 
+type CognitoScope struct {
+	ScopeId string
+	Name    string
+}
+
+type CognitoClient struct {
+	ClientId string
+	Name     string
+}
+
 type AWSSevice struct {
 	client cognitoidentityprovider.Client
 }
@@ -76,4 +86,56 @@ func (svc *AWSSevice) ListPools() ([]CognitoPool, error) {
 		}
 		nextToken = res.NextToken
 	}
+}
+
+func (svc *AWSSevice) ListClients(poolId string) ([]CognitoClient, error) {
+
+	spinner := pkg.NewSpinner()
+	spinner.Suffix = "Retrieving Cognito Client\n"
+	spinner.Start()
+	defer spinner.Stop()
+
+	maxResult := int32(50)
+
+	var nextToken *string = nil
+
+	for {
+
+		params := cognitoidentityprovider.ListUserPoolClientsInput{
+			UserPoolId: &poolId,
+			MaxResults: &maxResult,
+			NextToken:  nextToken,
+		}
+
+		res, err := svc.client.ListUserPoolClients(context.TODO(), &params)
+
+		if err != nil {
+			return nil, fmt.Errorf("could not list cognito clients: %v", err)
+		}
+
+		clientsId := []CognitoClient{}
+		for _, c := range res.UserPoolClients {
+
+			client := &CognitoClient{
+				ClientId: *c.ClientId,
+				Name:     *c.ClientName,
+			}
+			clientsId = append(clientsId, *client)
+		}
+
+		if res.NextToken == nil {
+			return clientsId, nil
+		}
+		nextToken = res.NextToken
+	}
+}
+
+func (svc *AWSSevice) ListScopes(clientId string) ([]CognitoScope, error) {
+
+	spinner := pkg.NewSpinner()
+	spinner.Suffix = "Retrieving Cognito Scopes\n"
+	spinner.Start()
+	defer spinner.Stop()
+
+	return []CognitoScope{}, nil
 }
