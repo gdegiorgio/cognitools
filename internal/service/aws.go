@@ -53,7 +53,7 @@ func (svc *AWSSevice) ListPools() ([]CognitoPool, error) {
 	res, err := svc.client.ListUserPools(context.TODO(), &params)
 
 	if err != nil {
-		return nil, fmt.Errorf("Could not list cognito pools: %v", err)
+		return nil, fmt.Errorf("could not list cognito pools: %v", err)
 	}
 
 	poolsId := []CognitoPool{}
