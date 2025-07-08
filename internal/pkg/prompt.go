@@ -6,7 +6,7 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-func SelectUserPool(pools []string) (int, error){
+func SelectUserPool(pools []string) (int, error) {
 
 	prompt := promptui.Select{
 		Label: "Select Cognito Pool",
@@ -16,7 +16,7 @@ func SelectUserPool(pools []string) (int, error){
 	idx, _, err := prompt.Run()
 
 	if err != nil {
-		return -1, fmt.Errorf("Could not select cognito pool : %w", err)
+		return -1, fmt.Errorf("Could not select cognito pool : %v", err)
 	}
 
 	return idx, nil

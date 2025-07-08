@@ -15,10 +15,10 @@ type Service interface {
 
 type CognitoPool struct {
 	PoolId string
-	Name string
+	Name   string
 }
 
-type AWSSevice struct{
+type AWSSevice struct {
 	client cognitoidentityprovider.Client
 }
 
@@ -33,11 +33,11 @@ func NewAWSService() *AWSSevice {
 	client := cognitoidentityprovider.NewFromConfig(config)
 
 	return &AWSSevice{
-		client : *client,
+		client: *client,
 	}
 }
 
-func (svc *AWSSevice) ListPools() ([]CognitoPool, error){
+func (svc *AWSSevice) ListPools() ([]CognitoPool, error) {
 
 	spinner := pkg.NewSpinner()
 	spinner.Suffix = "Retrieving Cognito Pools\n"
@@ -53,17 +53,17 @@ func (svc *AWSSevice) ListPools() ([]CognitoPool, error){
 	res, err := svc.client.ListUserPools(context.TODO(), &params)
 
 	if err != nil {
-		return nil, fmt.Errorf("Could not list cognito pools: %w", err)
+		return nil, fmt.Errorf("Could not list cognito pools: %v", err)
 	}
 
 	poolsId := []CognitoPool{}
 
-	for{
-		for _ , p := range(res.UserPools){
+	for {
+		for _, p := range res.UserPools {
 
 			pool := &CognitoPool{
 				PoolId: *p.Id,
-				Name: *p.Name,
+				Name:   *p.Name,
 			}
 			poolsId = append(poolsId, *pool)
 		}

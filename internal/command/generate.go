@@ -8,12 +8,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-
 func NewGenerateCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "generate",
 		Short: "Generate JWT",
-		Run: runGenerate,
+		Run:   runGenerate,
 	}
 }
 
@@ -24,27 +23,21 @@ func runGenerate(cmd *cobra.Command, args []string) {
 	pools, err := svc.ListPools()
 
 	if err != nil {
-		fmt.Printf("could not generate jwt: %w", err)
+		fmt.Printf("could not generate jwt: %v", err)
 	}
 
 	selectInput := []string{}
 
-	for _, p := range(pools){
+	for _, p := range pools {
 		selectInput = append(selectInput, fmt.Sprintf("%s - %s", p.Name, p.PoolId))
 	}
-
 
 	idx, err := pkg.SelectUserPool(selectInput)
 
 	if err != nil {
-		fmt.Printf("failed to select user pool: %w", err)
+		fmt.Printf("failed to select user pool: %v", err)
 	}
 
-
 	fmt.Printf("You selected %s\n", pools[idx].Name)
-
-
-
-
 
 }
