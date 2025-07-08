@@ -50,7 +50,15 @@ func runGenerate(cmd *cobra.Command, args []string) {
 
 	_, err = pkg.SelectClients(selectInput)
 
+	if err != nil {
+		fmt.Printf("failed to select client: %v", err)
+	}
+
 	scope, err := pkg.SelectScope(selectInput)
+
+	if err != nil {
+		fmt.Printf("failed to select scope: %v", err)
+	}
 
 	fmt.Printf("Selected scope: %s\n", scope)
 }
