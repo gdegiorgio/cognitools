@@ -46,8 +46,11 @@ func (svc *AWSSevice) ListPools() ([]CognitoPool, error) {
 
 	maxResult := int32(50)
 
+	var nextToken *string = nil
+
 	params := cognitoidentityprovider.ListUserPoolsInput{
 		MaxResults: &maxResult,
+		NextToken:  nextToken,
 	}
 
 	res, err := svc.client.ListUserPools(context.TODO(), &params)
@@ -59,6 +62,7 @@ func (svc *AWSSevice) ListPools() ([]CognitoPool, error) {
 	poolsId := []CognitoPool{}
 
 	for {
+
 		for _, p := range res.UserPools {
 
 			pool := &CognitoPool{
@@ -71,5 +75,6 @@ func (svc *AWSSevice) ListPools() ([]CognitoPool, error) {
 		if res.NextToken == nil {
 			return poolsId, nil
 		}
+		nextToken = res.NextToken
 	}
 }
