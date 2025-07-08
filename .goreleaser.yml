@@ -1,0 +1,47 @@
+version: 2
+
+project_name: cognitools
+dist: bin
+builds:
+  - id: cognitools
+    main: ./cmd/cognitools.go
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+  - id: cognitools-win
+    main: ./cmd/cognitools.go
+    goos:
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+
+archives:
+  - id: default
+    ids: [cognitools]
+    formats: [tar.gz]
+    name_template: "cognitools_{{ .Os }}_{{ .Arch }}"
+    files:
+      - LICENSE.txt
+      - README.md
+  - id: cognitools-win
+    ids: [cognitools-win]
+    formats: [zip]
+    name_template: "cognitools_{{ .Os }}_{{ .Arch }}"
+    files:
+      - LICENSE.txt
+      - README.md
+
+release:
+  github:
+    owner: gdegiorgio
+    name: cognitools
+changelog:
+  use: git
