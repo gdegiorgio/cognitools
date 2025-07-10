@@ -17,48 +17,69 @@ func NewGenerateCommand() *cobra.Command {
 }
 
 func runGenerate(cmd *cobra.Command, args []string) {
-
 	svc := service.NewAWSService()
 
 	pools, err := svc.ListPools()
-
 	if err != nil {
-		fmt.Printf("could not generate jwt: %v", err)
+		cmd.Printf("❌ could not list user pools: %v\n", err)
+		return
 	}
 
-	selectInput := []string{}
-
-	for _, p := range pools {
-		selectInput = append(selectInput, fmt.Sprintf("%s - %s", p.Name, p.PoolId))
+	selectInput := make([]string, len(pools))
+	for i, p := range pools {
+		selectInput[i] = fmt.Sprintf("%s - %s", p.Name, p.PoolId)
 	}
 
 	idx, err := pkg.SelectUserPool(selectInput)
-
 	if err != nil {
-		fmt.Printf("failed to select user pool: %v", err)
+		cmd.Printf("❌ failed to select user pool: %v\n", err)
+		return
 	}
 
-	clients, err := svc.ListClients(pools[idx].PoolId)
+	selectedPool := pools[idx]
 
+	domain, err := svc.GetCognitoDomain(selectedPool.PoolId)
 	if err != nil {
-		fmt.Printf("failed to list clients: %v", err)
+		cmd.Printf("❌ failed to get Cognito domain: %v\n", err)
+		return
 	}
 
-	for _, c := range clients {
-		selectInput = append(selectInput, fmt.Sprintf("%s - %s", c.Name, c.ClientId))
-	}
-
-	_, err = pkg.SelectClients(selectInput)
-
+	clients, err := svc.ListClients(selectedPool.PoolId)
 	if err != nil {
-		fmt.Printf("failed to select client: %v", err)
+		cmd.Printf("❌ failed to list clients: %v\n", err)
+		return
 	}
 
-	scope, err := pkg.SelectScope(selectInput)
+	clientInput := make([]string, len(clients))
+	for i, c := range clients {
+		clientInput[i] = fmt.Sprintf("%s - %s", c.Name, c.ClientId)
+	}
 
+	clientIdx, err := pkg.SelectClients(clientInput)
 	if err != nil {
-		fmt.Printf("failed to select scope: %v", err)
+		cmd.Printf("❌ failed to select client: %v\n", err)
+		return
 	}
 
-	fmt.Printf("Selected scope: %s\n", scope)
+	selectedClient := clients[clientIdx]
+
+	secret, err := svc.GetCognitoClientSecret(selectedPool.PoolId, selectedClient.ClientId)
+	if err != nil {
+		cmd.Printf("❌ failed to get client secret: %v\n", err)
+		return
+	}
+
+	scope, err := pkg.SelectScope(clientInput)
+	if err != nil {
+		cmd.Printf("❌ failed to select scope: %v\n", err)
+		return
+	}
+
+	jwt, err := service.GenerateJWT(domain, selectedClient.ClientId, secret, scope)
+	if err != nil {
+		cmd.Printf("❌ could not generate JWT: %v\n", err)
+		return
+	}
+
+	cmd.Printf("✅ JWT generated successfully.\n\n%s\n", jwt)
 }
