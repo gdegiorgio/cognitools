@@ -28,12 +28,11 @@ func GenerateJWT(domain string, clientId string, clientSecret string, scope stri
 	}
 
 	res, err := c.Do(req)
+	defer func() { res.Body.Close() }()
 
 	if err != nil {
 		return "", err
 	}
-
-	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
 		return "", err
