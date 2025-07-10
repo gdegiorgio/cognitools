@@ -28,7 +28,7 @@ func GenerateJWT(domain string, clientId string, clientSecret string, scope stri
 	}
 
 	res, err := c.Do(req)
-	defer func() { res.Body.Close() }()
+	defer res.Body.Close() //nolint:errcheck
 
 	if err != nil {
 		return "", err
