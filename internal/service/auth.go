@@ -8,9 +8,19 @@ import (
 	"strings"
 )
 
-func GenerateJWT(domain string, clientId string, clientSecret string, scope string) (string, error) {
+type Auth interface {
+	GenerateJWT(domain string, clientId string, clientSecret string, scope string) (string, error)
+}
 
-	c := &http.Client{}
+type authservice struct{}
+
+func NewAuthService() Auth {
+	return &authservice{}
+}
+
+func (a *authservice) GenerateJWT(domain string, clientId string, clientSecret string, scope string) (string, error) {
+
+	c := http.DefaultClient
 
 	data := url.Values{}
 	data.Set("grant_type", "client_credentials")

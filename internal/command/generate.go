@@ -3,8 +3,8 @@ package command
 import (
 	"fmt"
 
-	"github.com/gdegiorgio/cognitools/internal/pkg"
 	"github.com/gdegiorgio/cognitools/internal/service"
+	"github.com/gdegiorgio/cognitools/internal/ui"
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +22,10 @@ func NewGenerateCommand() *cobra.Command {
 }
 
 func runGenerate(cmd *cobra.Command, args []string) {
-	svc := service.NewAWSService()
+	generate(cmd, args, service.NewAWSService(), ui.NewPrompt(), service.NewAuthService())
+}
+
+func generate(cmd *cobra.Command, args []string, svc service.AWS, prompt ui.Prompt, auth service.Auth) {
 
 	pools, err := svc.ListPools()
 	if err != nil {
@@ -35,7 +38,7 @@ func runGenerate(cmd *cobra.Command, args []string) {
 		selectInput[i] = fmt.Sprintf("%s - %s", p.Name, p.PoolId)
 	}
 
-	idx, err := pkg.SelectFromList("🏖️ Select Cognito User Pool", selectInput)
+	idx, err := prompt.SelectFromList("🏖️ Select Cognito User Pool", selectInput)
 
 	if err != nil {
 		cmd.Printf("❌ failed to select user pool: %v\n", err)
@@ -62,7 +65,7 @@ func runGenerate(cmd *cobra.Command, args []string) {
 		clientInput[i] = fmt.Sprintf("%s - %s", c.Name, c.ClientId)
 	}
 
-	clientIdx, err := pkg.SelectFromList("👤 Select Cognito Client", clientInput)
+	clientIdx, err := prompt.SelectFromList("👤 Select Cognito Client", clientInput)
 
 	if err != nil {
 		cmd.Printf("❌ failed to select client: %v\n", err)
@@ -77,13 +80,13 @@ func runGenerate(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	scope, err := pkg.PromptInput("🎯 Please enter the Cognito Scope Name to use for request")
+	scope, err := prompt.PromptInput("🎯 Please enter the Cognito Scope Name to use for request")
 	if err != nil {
 		cmd.Printf("❌ failed to select scope: %v\n", err)
 		return
 	}
 
-	jwt, err := service.GenerateJWT(domain, selectedClient.ClientId, secret, scope)
+	jwt, err := auth.GenerateJWT(domain, selectedClient.ClientId, secret, scope)
 	if err != nil {
 		cmd.Printf("❌ could not generate JWT: %v\n", err)
 		return

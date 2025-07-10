@@ -6,13 +6,12 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
-	"github.com/gdegiorgio/cognitools/internal/pkg"
+	"github.com/gdegiorgio/cognitools/internal/ui"
 )
 
-type Service interface {
+type AWS interface {
 	ListPools() ([]CognitoPool, error)
 	ListClients(poolId string) ([]CognitoClient, error)
-	ListScopes(clientId string) ([]CognitoScope, error)
 	GetCognitoDomain(poolId string) (string, error)
 	GetCognitoClientSecret(userPoolId, clientId string) (string, error)
 }
@@ -32,11 +31,11 @@ type CognitoClient struct {
 	Name     string
 }
 
-type AWSService struct {
+type awsservice struct {
 	client cognitoidentityprovider.Client
 }
 
-func NewAWSService() *AWSService {
+func NewAWSService() *awsservice {
 
 	config, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("eu-west-1"))
 
@@ -46,15 +45,15 @@ func NewAWSService() *AWSService {
 
 	client := cognitoidentityprovider.NewFromConfig(config)
 
-	return &AWSService{
+	return &awsservice{
 		client: *client,
 	}
 }
-func (svc *AWSService) ListPools() ([]CognitoPool, error) {
+func (svc *awsservice) ListPools() ([]CognitoPool, error) {
 
 	var pools []CognitoPool
 
-	err := pkg.WithSpinner("Retrieving Cognito Pools\n", func() error {
+	err := ui.WithSpinner("Retrieving Cognito Pools\n", func() error {
 		maxResult := int32(50)
 		var nextToken *string
 
@@ -84,10 +83,10 @@ func (svc *AWSService) ListPools() ([]CognitoPool, error) {
 
 	return pools, err
 }
-func (svc *AWSService) ListClients(poolId string) ([]CognitoClient, error) {
+func (svc *awsservice) ListClients(poolId string) ([]CognitoClient, error) {
 	var clients []CognitoClient
 
-	err := pkg.WithSpinner("Retrieving Cognito Clients\n", func() error {
+	err := ui.WithSpinner("Retrieving Cognito Clients\n", func() error {
 		maxResult := int32(50)
 		var nextToken *string
 
@@ -118,9 +117,9 @@ func (svc *AWSService) ListClients(poolId string) ([]CognitoClient, error) {
 
 	return clients, err
 }
-func (svc *AWSService) GetCognitoDomain(poolId string) (string, error) {
+func (svc *awsservice) GetCognitoDomain(poolId string) (string, error) {
 	var domain string
-	err := pkg.WithSpinner("Retrieving Cognito Domain\n", func() error {
+	err := ui.WithSpinner("Retrieving Cognito Domain\n", func() error {
 		res, err := svc.client.DescribeUserPool(context.TODO(), &cognitoidentityprovider.DescribeUserPoolInput{
 			UserPoolId: &poolId,
 		})
@@ -134,9 +133,9 @@ func (svc *AWSService) GetCognitoDomain(poolId string) (string, error) {
 
 	return domain, err
 }
-func (svc *AWSService) GetCognitoClientSecret(userPoolId, clientId string) (string, error) {
+func (svc *awsservice) GetCognitoClientSecret(userPoolId, clientId string) (string, error) {
 	var secret string
-	err := pkg.WithSpinner("Retrieving Cognito Client Secret\n", func() error {
+	err := ui.WithSpinner("Retrieving Cognito Client Secret\n", func() error {
 		res, err := svc.client.DescribeUserPoolClient(context.TODO(), &cognitoidentityprovider.DescribeUserPoolClientInput{
 			UserPoolId: &userPoolId,
 			ClientId:   &clientId,
