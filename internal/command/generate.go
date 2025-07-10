@@ -23,7 +23,7 @@ func runGenerate(cmd *cobra.Command, args []string) {
 	pools, err := svc.ListPools()
 
 	if err != nil {
-		fmt.Printf("could not generate jwt: %v", err)
+		cmd.Printf("could not generate jwt: %v", err)
 	}
 
 	selectInput := []string{}
@@ -35,13 +35,15 @@ func runGenerate(cmd *cobra.Command, args []string) {
 	idx, err := pkg.SelectUserPool(selectInput)
 
 	if err != nil {
-		fmt.Printf("failed to select user pool: %v", err)
+		cmd.Printf("failed to select user pool: %v", err)
 	}
+
+	domain, err := svc.GetCognitoDomain(pools[idx].PoolId)
 
 	clients, err := svc.ListClients(pools[idx].PoolId)
 
 	if err != nil {
-		fmt.Printf("failed to list clients: %v", err)
+		cmd.Printf("failed to list clients: %v", err)
 	}
 
 	for _, c := range clients {
@@ -51,14 +53,23 @@ func runGenerate(cmd *cobra.Command, args []string) {
 	_, err = pkg.SelectClients(selectInput)
 
 	if err != nil {
-		fmt.Printf("failed to select client: %v", err)
+		cmd.Printf("failed to select client: %v", err)
 	}
+
+	secret, err := svc.GetCognitoClientSecret(pools[idx].PoolId, clients[idx].ClientId)
 
 	scope, err := pkg.SelectScope(selectInput)
 
 	if err != nil {
-		fmt.Printf("failed to select scope: %v", err)
+		cmd.Printf("failed to select scope: %v", err)
 	}
 
-	fmt.Printf("Selected scope: %s\n", scope)
+	j, err := service.GenerateJWT(domain, clients[idx].ClientId, secret, scope)
+
+	if err != nil {
+		cmd.Printf("could not generate jwt: %v", err)
+	}
+
+	cmd.Printf("💡 JWT generated successfully. You can now use it in your application.\n\n\n")
+	cmd.Println(j)
 }

@@ -139,3 +139,46 @@ func (svc *AWSSevice) ListScopes(clientId string) ([]CognitoScope, error) {
 
 	return []CognitoScope{}, nil
 }
+
+func (svc AWSSevice) GetCognitoDomain(poolId string) (string, error) {
+
+	spinner := pkg.NewSpinner()
+	spinner.Suffix = "Retrieving Cognito Domain\n"
+	spinner.Start()
+	defer spinner.Stop()
+
+	params := cognitoidentityprovider.DescribeUserPoolInput{
+		UserPoolId: &poolId,
+	}
+
+	res, err := svc.client.DescribeUserPool(context.TODO(), &params)
+
+	if err != nil {
+		return "", fmt.Errorf("could not describe user pool: %v", err)
+	}
+
+	domain := fmt.Sprintf("%s.auth.%s.amazoncognito.com", *res.UserPool.Domain, svc.client.Options().Region)
+
+	return domain, nil
+}
+
+func (svc *AWSSevice) GetCognitoClientSecret(userPoolId string, clientId string) (string, error) {
+
+	spinner := pkg.NewSpinner()
+	spinner.Suffix = "Retrieving Cognito Client Secret\n"
+	spinner.Start()
+	defer spinner.Stop()
+
+	params := cognitoidentityprovider.DescribeUserPoolClientInput{
+		UserPoolId: &userPoolId,
+		ClientId:   &clientId,
+	}
+
+	res, err := svc.client.DescribeUserPoolClient(context.TODO(), &params)
+
+	if err != nil {
+		return "", fmt.Errorf("could not describe user pool client: %v", err)
+	}
+
+	return *res.UserPoolClient.ClientSecret, nil
+}
