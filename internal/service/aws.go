@@ -10,7 +10,11 @@ import (
 )
 
 type Service interface {
-	ListPools() []CognitoPool
+	ListPools() ([]CognitoPool, error)
+	ListClients(poolId string) ([]CognitoClient, error)
+	ListScopes(clientId string) ([]CognitoScope, error)
+	GetCognitoDomain(poolId string) (string, error)
+	GetCognitoClientSecret(userPoolId, clientId string) (string, error)
 }
 
 type CognitoPool struct {
@@ -28,11 +32,11 @@ type CognitoClient struct {
 	Name     string
 }
 
-type AWSSevice struct {
+type AWSService struct {
 	client cognitoidentityprovider.Client
 }
 
-func NewAWSService() *AWSSevice {
+func NewAWSService() *AWSService {
 
 	config, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("eu-west-1"))
 
@@ -42,143 +46,106 @@ func NewAWSService() *AWSSevice {
 
 	client := cognitoidentityprovider.NewFromConfig(config)
 
-	return &AWSSevice{
+	return &AWSService{
 		client: *client,
 	}
 }
+func (svc *AWSService) ListPools() ([]CognitoPool, error) {
 
-func (svc *AWSSevice) ListPools() ([]CognitoPool, error) {
+	var pools []CognitoPool
 
-	spinner := pkg.NewSpinner()
-	spinner.Suffix = "Retrieving Cognito Pools\n"
-	spinner.Start()
-	defer spinner.Stop()
+	err := pkg.WithSpinner("Retrieving Cognito Pools\n", func() error {
+		maxResult := int32(50)
+		var nextToken *string
 
-	maxResult := int32(50)
-
-	var nextToken *string = nil
-
-	for {
-
-		params := cognitoidentityprovider.ListUserPoolsInput{
-			MaxResults: &maxResult,
-			NextToken:  nextToken,
-		}
-
-		res, err := svc.client.ListUserPools(context.TODO(), &params)
-
-		if err != nil {
-			return nil, fmt.Errorf("could not list cognito pools: %v", err)
-		}
-
-		poolsId := []CognitoPool{}
-		for _, p := range res.UserPools {
-
-			pool := &CognitoPool{
-				PoolId: *p.Id,
-				Name:   *p.Name,
+		for {
+			res, err := svc.client.ListUserPools(context.TODO(), &cognitoidentityprovider.ListUserPoolsInput{
+				MaxResults: &maxResult,
+				NextToken:  nextToken,
+			})
+			if err != nil {
+				return fmt.Errorf("could not list cognito pools: %w", err)
 			}
-			poolsId = append(poolsId, *pool)
-		}
 
-		if res.NextToken == nil {
-			return poolsId, nil
+			for _, p := range res.UserPools {
+				pools = append(pools, CognitoPool{
+					PoolId: *p.Id,
+					Name:   *p.Name,
+				})
+			}
+
+			if res.NextToken == nil {
+				break
+			}
+			nextToken = res.NextToken
 		}
-		nextToken = res.NextToken
-	}
+		return nil
+	})
+
+	return pools, err
 }
+func (svc *AWSService) ListClients(poolId string) ([]CognitoClient, error) {
+	var clients []CognitoClient
 
-func (svc *AWSSevice) ListClients(poolId string) ([]CognitoClient, error) {
+	err := pkg.WithSpinner("Retrieving Cognito Clients\n", func() error {
+		maxResult := int32(50)
+		var nextToken *string
 
-	spinner := pkg.NewSpinner()
-	spinner.Suffix = "Retrieving Cognito Client\n"
-	spinner.Start()
-	defer spinner.Stop()
+		for {
+			res, err := svc.client.ListUserPoolClients(context.TODO(), &cognitoidentityprovider.ListUserPoolClientsInput{
+				UserPoolId: &poolId,
+				MaxResults: &maxResult,
+				NextToken:  nextToken,
+			})
+			if err != nil {
+				return fmt.Errorf("could not list cognito clients: %w", err)
+			}
 
-	maxResult := int32(50)
+			for _, c := range res.UserPoolClients {
+				clients = append(clients, CognitoClient{
+					ClientId: *c.ClientId,
+					Name:     *c.ClientName,
+				})
+			}
 
-	var nextToken *string = nil
+			if res.NextToken == nil {
+				break
+			}
+			nextToken = res.NextToken
+		}
+		return nil
+	})
 
-	for {
-
-		params := cognitoidentityprovider.ListUserPoolClientsInput{
+	return clients, err
+}
+func (svc *AWSService) GetCognitoDomain(poolId string) (string, error) {
+	var domain string
+	err := pkg.WithSpinner("Retrieving Cognito Domain\n", func() error {
+		res, err := svc.client.DescribeUserPool(context.TODO(), &cognitoidentityprovider.DescribeUserPoolInput{
 			UserPoolId: &poolId,
-			MaxResults: &maxResult,
-			NextToken:  nextToken,
-		}
-
-		res, err := svc.client.ListUserPoolClients(context.TODO(), &params)
-
+		})
 		if err != nil {
-			return nil, fmt.Errorf("could not list cognito clients: %v", err)
+			return fmt.Errorf("could not describe user pool: %w", err)
 		}
 
-		clientsId := []CognitoClient{}
-		for _, c := range res.UserPoolClients {
+		domain = fmt.Sprintf("%s.auth.%s.amazoncognito.com", *res.UserPool.Domain, svc.client.Options().Region)
+		return nil
+	})
 
-			client := &CognitoClient{
-				ClientId: *c.ClientId,
-				Name:     *c.ClientName,
-			}
-			clientsId = append(clientsId, *client)
+	return domain, err
+}
+func (svc *AWSService) GetCognitoClientSecret(userPoolId, clientId string) (string, error) {
+	var secret string
+	err := pkg.WithSpinner("Retrieving Cognito Client Secret\n", func() error {
+		res, err := svc.client.DescribeUserPoolClient(context.TODO(), &cognitoidentityprovider.DescribeUserPoolClientInput{
+			UserPoolId: &userPoolId,
+			ClientId:   &clientId,
+		})
+		if err != nil {
+			return fmt.Errorf("could not describe user pool client: %w", err)
 		}
-
-		if res.NextToken == nil {
-			return clientsId, nil
-		}
-		nextToken = res.NextToken
-	}
-}
-
-func (svc *AWSSevice) ListScopes(clientId string) ([]CognitoScope, error) {
-
-	spinner := pkg.NewSpinner()
-	spinner.Suffix = "Retrieving Cognito Scopes\n"
-	spinner.Start()
-	defer spinner.Stop()
-
-	return []CognitoScope{}, nil
-}
-
-func (svc AWSSevice) GetCognitoDomain(poolId string) (string, error) {
-
-	spinner := pkg.NewSpinner()
-	spinner.Suffix = "Retrieving Cognito Domain\n"
-	spinner.Start()
-	defer spinner.Stop()
-
-	params := cognitoidentityprovider.DescribeUserPoolInput{
-		UserPoolId: &poolId,
-	}
-
-	res, err := svc.client.DescribeUserPool(context.TODO(), &params)
-
-	if err != nil {
-		return "", fmt.Errorf("could not describe user pool: %v", err)
-	}
-
-	domain := fmt.Sprintf("%s.auth.%s.amazoncognito.com", *res.UserPool.Domain, svc.client.Options().Region)
-
-	return domain, nil
-}
-
-func (svc *AWSSevice) GetCognitoClientSecret(userPoolId string, clientId string) (string, error) {
-
-	spinner := pkg.NewSpinner()
-	spinner.Suffix = "Retrieving Cognito Client Secret\n"
-	spinner.Start()
-	defer spinner.Stop()
-
-	params := cognitoidentityprovider.DescribeUserPoolClientInput{
-		UserPoolId: &userPoolId,
-		ClientId:   &clientId,
-	}
-
-	res, err := svc.client.DescribeUserPoolClient(context.TODO(), &params)
-
-	if err != nil {
-		return "", fmt.Errorf("could not describe user pool client: %v", err)
-	}
-
-	return *res.UserPoolClient.ClientSecret, nil
+		secret = *res.UserPoolClient.ClientSecret
+		return nil
+	})
+	return secret, err
 }

@@ -12,7 +12,12 @@ func NewGenerateCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "generate",
 		Short: "Generate JWT",
-		Run:   runGenerate,
+		Long: `Generate JWT tokens for a selected AWS Cognito User Pool and Client.
+	
+	This command lists available Cognito User Pools, prompts you to select one,
+	then lists its clients and scopes, and finally generates a JWT token that
+	can be used to authenticate against your application.`,
+		Run: runGenerate,
 	}
 }
 
@@ -30,21 +35,23 @@ func runGenerate(cmd *cobra.Command, args []string) {
 		selectInput[i] = fmt.Sprintf("%s - %s", p.Name, p.PoolId)
 	}
 
-	idx, err := pkg.SelectUserPool(selectInput)
+	idx, err := pkg.SelectFromList("🏖️ Select Cognito User Pool", selectInput)
+
 	if err != nil {
 		cmd.Printf("❌ failed to select user pool: %v\n", err)
 		return
 	}
 
-	selectedPool := pools[idx]
+	pool := pools[idx]
 
-	domain, err := svc.GetCognitoDomain(selectedPool.PoolId)
+	domain, err := svc.GetCognitoDomain(pool.PoolId)
+
 	if err != nil {
 		cmd.Printf("❌ failed to get Cognito domain: %v\n", err)
 		return
 	}
 
-	clients, err := svc.ListClients(selectedPool.PoolId)
+	clients, err := svc.ListClients(pool.PoolId)
 	if err != nil {
 		cmd.Printf("❌ failed to list clients: %v\n", err)
 		return
@@ -55,7 +62,8 @@ func runGenerate(cmd *cobra.Command, args []string) {
 		clientInput[i] = fmt.Sprintf("%s - %s", c.Name, c.ClientId)
 	}
 
-	clientIdx, err := pkg.SelectClients(clientInput)
+	clientIdx, err := pkg.SelectFromList("👤 Select Cognito Client", clientInput)
+
 	if err != nil {
 		cmd.Printf("❌ failed to select client: %v\n", err)
 		return
@@ -63,13 +71,13 @@ func runGenerate(cmd *cobra.Command, args []string) {
 
 	selectedClient := clients[clientIdx]
 
-	secret, err := svc.GetCognitoClientSecret(selectedPool.PoolId, selectedClient.ClientId)
+	secret, err := svc.GetCognitoClientSecret(pool.PoolId, selectedClient.ClientId)
 	if err != nil {
 		cmd.Printf("❌ failed to get client secret: %v\n", err)
 		return
 	}
 
-	scope, err := pkg.SelectScope(clientInput)
+	scope, err := pkg.PromptInput("🎯 Please enter the Cognito Scope Name to use for request")
 	if err != nil {
 		cmd.Printf("❌ failed to select scope: %v\n", err)
 		return

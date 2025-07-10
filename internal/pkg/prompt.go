@@ -6,49 +6,25 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-func SelectUserPool(pools []string) (int, error) {
-
+func SelectFromList(label string, items []string) (int, error) {
 	prompt := promptui.Select{
-		Label: "🏖️ Select Cognito Pool",
-		Items: pools,
+		Label: label,
+		Items: items,
 	}
-
 	idx, _, err := prompt.Run()
-
 	if err != nil {
-		return -1, fmt.Errorf("could not select cognito pool : %v", err)
+		return -1, fmt.Errorf("failed to select %s: %w", label, err)
 	}
-
 	return idx, nil
 }
 
-func SelectClients(clients []string) (int, error) {
-
-	prompt := promptui.Select{
-		Label: "👤 Select Client",
-		Items: clients,
-	}
-
-	idx, _, err := prompt.Run()
-
-	if err != nil {
-		return -1, fmt.Errorf("could not select cognito pool : %v", err)
-	}
-
-	return idx, nil
-}
-
-func SelectScope(scopes []string) (string, error) {
-
+func PromptInput(label string) (string, error) {
 	prompt := promptui.Prompt{
-		Label: "🎯 Please write the Cognito Scope Name to use for request",
+		Label: label,
 	}
-
-	scope, err := prompt.Run()
-
+	val, err := prompt.Run()
 	if err != nil {
-		return "", fmt.Errorf("could not select cognito scope : %v", err)
+		return "", fmt.Errorf("failed to input %s: %w", label, err)
 	}
-
-	return scope, nil
+	return val, nil
 }

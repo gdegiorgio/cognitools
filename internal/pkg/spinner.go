@@ -6,6 +6,10 @@ import (
 	"github.com/briandowns/spinner"
 )
 
-func NewSpinner() *spinner.Spinner {
-	return spinner.New(spinner.CharSets[39], time.Minute * 1)
+func WithSpinner(suffix string, fn func() error) error {
+	spinner := spinner.New(spinner.CharSets[39], time.Minute*1)
+	spinner.Suffix = suffix
+	spinner.Start()
+	defer spinner.Stop()
+	return fn()
 }
