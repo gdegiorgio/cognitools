@@ -1,4 +1,4 @@
-package pkg
+package ui
 
 import (
 	"fmt"
@@ -6,7 +6,18 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-func SelectFromList(label string, items []string) (int, error) {
+type Prompt interface {
+	SelectFromList(label string, items []string) (int, error)
+	PromptInput(label string) (string, error)
+}
+
+type prompt struct{}
+
+func NewPrompt() Prompt {
+	return &prompt{}
+}
+
+func (p *prompt) SelectFromList(label string, items []string) (int, error) {
 	prompt := promptui.Select{
 		Label: label,
 		Items: items,
@@ -18,7 +29,7 @@ func SelectFromList(label string, items []string) (int, error) {
 	return idx, nil
 }
 
-func PromptInput(label string) (string, error) {
+func (p *prompt) PromptInput(label string) (string, error) {
 	prompt := promptui.Prompt{
 		Label: label,
 	}
