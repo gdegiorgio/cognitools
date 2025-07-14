@@ -88,7 +88,7 @@ func generate(cmd *cobra.Command, args []string, svc service.AWS, prompt ui.Prom
 	}
 
 	jwt, err := auth.GenerateJWT(svc.GetCognitoHost(*pool.Domain), *client.ClientId, *client.ClientSecret, scope)
-	if err != nil {
+	if err != nil || jwt == "" {
 		cmd.Printf("❌ could not generate JWT: %v\n", err)
 		return
 	}
