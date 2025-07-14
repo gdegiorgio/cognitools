@@ -13,6 +13,7 @@ import (
 type AWS interface {
 	DescribeUserPoolClient(userPoolId, clientId string) (types.UserPoolClientType, error)
 	DescribeUserPool(poolId string) (types.UserPoolType, error)
+	GetCognitoHostURL(domain string) string
 	ListUsersPools() ([]types.UserPoolDescriptionType, error)
 	ListUserPoolClients(poolId string) ([]types.UserPoolClientDescription, error)
 }
@@ -131,4 +132,8 @@ func (svc *awsservice) ListUserPoolClients(poolId string) ([]types.UserPoolClien
 	})
 
 	return clients, err
+}
+
+func (svc *awsservice) GetCognitoHostURL(domain string) string {
+	return "https://" + domain + ".auth." + svc.client.Options().Region + ".amazoncognito.com"
 }

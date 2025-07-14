@@ -44,3 +44,7 @@ func (a *AwsMockService) ListUserPoolClients(poolId string) ([]types.UserPoolCli
 		},
 	}, nil
 }
+
+func (a *AwsMockService) GetCognitoHostURL(domain string) string {
+	return "https://" + domain + ".auth.us-east-1.amazoncognito.com"
+}
