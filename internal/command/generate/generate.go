@@ -36,7 +36,7 @@ func generate(cmd *cobra.Command, args []string, svc service.AWS, prompt ui.Prom
 
 	selectInput := make([]string, len(pools))
 	for i, p := range pools {
-		selectInput[i] = fmt.Sprintf("%s - %s", p.Name, *p.Id)
+		selectInput[i] = fmt.Sprintf("%s - %s", *p.Name, *p.Id)
 	}
 
 	idx, err := prompt.SelectFromList("🏖️ Select Cognito User Pool", selectInput)
@@ -63,7 +63,7 @@ func generate(cmd *cobra.Command, args []string, svc service.AWS, prompt ui.Prom
 	clientInput := make([]string, len(clients))
 
 	for i, c := range clients {
-		clientInput[i] = fmt.Sprintf("%s - %s", *c.ClientName, c.ClientId)
+		clientInput[i] = fmt.Sprintf("%s - %s", *c.ClientName, *c.ClientId)
 	}
 
 	clientIdx, err := prompt.SelectFromList("👤 Select Cognito Client", clientInput)
