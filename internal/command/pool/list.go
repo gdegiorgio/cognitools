@@ -2,7 +2,6 @@ package pool
 
 import (
 	"github.com/gdegiorgio/cognitools/internal/service"
-	"github.com/gdegiorgio/cognitools/internal/ui"
 	"github.com/gdegiorgio/cognitools/internal/utils"
 	"github.com/spf13/cobra"
 )
@@ -21,28 +20,26 @@ func runListCommand(cmd *cobra.Command, args []string) error {
 }
 
 func list(cmd *cobra.Command, args []string, svc service.AWS) error {
-	return ui.WithSpinner("Listing Cognito User Pools\n", func() error {
 
-		pools, err := svc.ListUsersPools()
+	pools, err := svc.ListUsersPools()
 
-		if err != nil {
-			cmd.Printf("❌ could not list user pools: %v\n", err)
-			return err
-		}
+	if err != nil {
+		cmd.Printf("❌ could not list user pools: %v\n", err)
+		return err
+	}
 
-		if len(pools) == 0 {
-			cmd.Println("❌ No user pools found.")
-			return nil
-		}
-
-		if outputJSON {
-			json, _ := utils.FormatJSON(pools)
-			cmd.Println(json)
-		} else {
-			for _, pool := range pools {
-				cmd.Println("🏖️ User Pool:", *pool.Name, "-", *pool.Id)
-			}
-		}
+	if len(pools) == 0 {
+		cmd.Println("❌ No user pools found.")
 		return nil
-	})
+	}
+
+	if outputJSON {
+		json, _ := utils.FormatJSON(pools)
+		cmd.Println(json)
+	} else {
+		for _, pool := range pools {
+			cmd.Println("🏖️ User Pool:", *pool.Name, "-", *pool.Id)
+		}
+	}
+	return nil
 }
