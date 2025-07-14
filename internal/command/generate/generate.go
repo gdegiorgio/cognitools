@@ -1,4 +1,4 @@
-package command
+package generate
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewGenerateCommand() *cobra.Command {
+func NewCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "generate",
 		Short: "Generate JWT",

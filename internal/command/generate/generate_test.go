@@ -1,4 +1,4 @@
-package command
+package generate
 
 import (
 	"bytes"
@@ -12,7 +12,7 @@ func TestGenerate(t *testing.T) {
 
 	buf := new(bytes.Buffer)
 
-	generateCmd := NewGenerateCommand()
+	generateCmd := NewCommand()
 	generateCmd.SetOut(buf)
 
 	generate(generateCmd, []string{}, &service.AwsMockService{}, &ui.PromptMock{}, &service.MockAuthService{})
