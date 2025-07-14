@@ -17,10 +17,10 @@ func newListCommand() *cobra.Command {
 }
 
 func runListCommand(cmd *cobra.Command, args []string) {
-	list(cmd, args, service.NewAWSService(), ui.NewPrompt())
+	list(cmd, args, service.NewAWSService())
 }
 
-func list(cmd *cobra.Command, args []string, svc service.AWS, prompt ui.Prompt) error {
+func list(cmd *cobra.Command, args []string, svc service.AWS) error {
 	return ui.WithSpinner("Listing Cognito User Pools\n", func() error {
 
 		pools, err := svc.ListUsersPools()
