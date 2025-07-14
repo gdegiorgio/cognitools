@@ -27,7 +27,8 @@ func runGenerate(cmd *cobra.Command, args []string) {
 
 func generate(cmd *cobra.Command, args []string, svc service.AWS, prompt ui.Prompt, auth service.Auth) {
 
-	pools, err := svc.ListPools()
+	pools, err := svc.ListUsersPools()
+
 	if err != nil {
 		cmd.Printf("❌ could not list user pools: %v\n", err)
 		return
@@ -35,7 +36,7 @@ func generate(cmd *cobra.Command, args []string, svc service.AWS, prompt ui.Prom
 
 	selectInput := make([]string, len(pools))
 	for i, p := range pools {
-		selectInput[i] = fmt.Sprintf("%s - %s", p.Name, p.PoolId)
+		selectInput[i] = fmt.Sprintf("%s - %s", p.Name, *p.Id)
 	}
 
 	idx, err := prompt.SelectFromList("🏖️ Select Cognito User Pool", selectInput)
@@ -45,24 +46,24 @@ func generate(cmd *cobra.Command, args []string, svc service.AWS, prompt ui.Prom
 		return
 	}
 
-	pool := pools[idx]
-
-	domain, err := svc.GetCognitoDomain(pool.PoolId)
+	pool, err := svc.DescribeUserPool(*pools[idx].Id)
 
 	if err != nil {
-		cmd.Printf("❌ failed to get Cognito domain: %v\n", err)
+		cmd.Printf("❌ failed to get user pool mmetadata: %v\n", err)
 		return
 	}
 
-	clients, err := svc.ListClients(pool.PoolId)
+	clients, err := svc.ListUserPoolClients(*pool.Id)
+
 	if err != nil {
 		cmd.Printf("❌ failed to list clients: %v\n", err)
 		return
 	}
 
 	clientInput := make([]string, len(clients))
+
 	for i, c := range clients {
-		clientInput[i] = fmt.Sprintf("%s - %s", c.Name, c.ClientId)
+		clientInput[i] = fmt.Sprintf("%s - %s", *c.ClientName, c.ClientId)
 	}
 
 	clientIdx, err := prompt.SelectFromList("👤 Select Cognito Client", clientInput)
@@ -73,10 +74,10 @@ func generate(cmd *cobra.Command, args []string, svc service.AWS, prompt ui.Prom
 	}
 
 	selectedClient := clients[clientIdx]
+	client, err := svc.DescribeUserPoolClient(*pool.Id, *selectedClient.ClientId)
 
-	secret, err := svc.GetCognitoClientSecret(pool.PoolId, selectedClient.ClientId)
 	if err != nil {
-		cmd.Printf("❌ failed to get client secret: %v\n", err)
+		cmd.Printf("❌ failed to get cognito client metadata: %v\n", err)
 		return
 	}
 
@@ -86,7 +87,7 @@ func generate(cmd *cobra.Command, args []string, svc service.AWS, prompt ui.Prom
 		return
 	}
 
-	jwt, err := auth.GenerateJWT(domain, selectedClient.ClientId, secret, scope)
+	jwt, err := auth.GenerateJWT(*pool.Domain, *client.ClientId, *client.ClientSecret, scope)
 	if err != nil {
 		cmd.Printf("❌ could not generate JWT: %v\n", err)
 		return
