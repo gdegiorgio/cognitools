@@ -20,7 +20,6 @@ func runListCommand(cmd *cobra.Command, args []string) error {
 }
 
 func list(cmd *cobra.Command, args []string, svc service.AWS) error {
-
 	pools, err := svc.ListUsersPools()
 
 	if err != nil {
@@ -38,7 +37,8 @@ func list(cmd *cobra.Command, args []string, svc service.AWS) error {
 		cmd.Println(json)
 	} else {
 		for _, pool := range pools {
-			cmd.Println("🏖️ User Pool:", *pool.Name, "-", *pool.Id)
+			cmd.Println("🏖️ User Pools:")
+			cmd.Println(*pool.Name, "-", *pool.Id)
 		}
 	}
 	return nil
