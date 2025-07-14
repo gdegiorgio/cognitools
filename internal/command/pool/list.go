@@ -12,12 +12,12 @@ func newListCommand() *cobra.Command {
 		Use:   "list",
 		Short: "List User Pools",
 		Long:  "List User Pools retrieves and displays all user pools in your application.",
-		Run:   runListCommand,
+		RunE:  runListCommand,
 	}
 }
 
-func runListCommand(cmd *cobra.Command, args []string) {
-	list(cmd, args, service.NewAWSService())
+func runListCommand(cmd *cobra.Command, args []string) error {
+	return list(cmd, args, service.NewAWSService())
 }
 
 func list(cmd *cobra.Command, args []string, svc service.AWS) error {
@@ -36,7 +36,8 @@ func list(cmd *cobra.Command, args []string, svc service.AWS) error {
 		}
 
 		if outputJSON {
-			utils.FormatJSON(pools)
+			json, _ := utils.FormatJSON(pools)
+			cmd.Println(json)
 		} else {
 			for _, pool := range pools {
 				cmd.Printf("User Pool: %s (ID: %s)\n", *pool.Name, *pool.Id)
