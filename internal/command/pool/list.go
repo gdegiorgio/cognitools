@@ -40,7 +40,7 @@ func list(cmd *cobra.Command, args []string, svc service.AWS) error {
 			cmd.Println(json)
 		} else {
 			for _, pool := range pools {
-				cmd.Printf("User Pool: %s (ID: %s)\n", *pool.Name, *pool.Id)
+				cmd.Println("🏖️ User Pool:", *pool.Name, "-", *pool.Id)
 			}
 		}
 		return nil
