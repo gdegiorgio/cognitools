@@ -11,11 +11,11 @@ import (
 )
 
 type AWS interface {
-	DescribeUserPoolClient(userPoolId, clientId string) (types.UserPoolClientType, error)
-	DescribeUserPool(poolId string) (types.UserPoolType, error)
+	DescribeUserPoolClient(userPoolID, clientID string) (types.UserPoolClientType, error)
+	DescribeUserPool(poolID string) (types.UserPoolType, error)
 	GetCognitoHost(domain string) string
 	ListUsersPools() ([]types.UserPoolDescriptionType, error)
-	ListUserPoolClients(poolId string) ([]types.UserPoolClientDescription, error)
+	ListUserPoolClients(poolID string) ([]types.UserPoolClientDescription, error)
 }
 
 type awsservice struct {
@@ -37,12 +37,12 @@ func NewAWSService() *awsservice {
 	}
 }
 
-func (svc *awsservice) DescribeUserPool(poolId string) (types.UserPoolType, error) {
+func (svc *awsservice) DescribeUserPool(poolID string) (types.UserPoolType, error) {
 	var result *cognitoidentityprovider.DescribeUserPoolOutput
 
 	err := ui.WithSpinner("Describing Cognito User Pool\n", func() error {
 		res, err := svc.client.DescribeUserPool(context.TODO(), &cognitoidentityprovider.DescribeUserPoolInput{
-			UserPoolId: &poolId,
+			UserPoolId: &poolID,
 		})
 		if err != nil {
 			return fmt.Errorf("could not describe user pool: %w", err)
@@ -55,13 +55,13 @@ func (svc *awsservice) DescribeUserPool(poolId string) (types.UserPoolType, erro
 	return *result.UserPool, err
 }
 
-func (svc *awsservice) DescribeUserPoolClient(userPoolId, clientId string) (types.UserPoolClientType, error) {
+func (svc *awsservice) DescribeUserPoolClient(userPoolID, clientID string) (types.UserPoolClientType, error) {
 	var result *cognitoidentityprovider.DescribeUserPoolClientOutput
 
 	err := ui.WithSpinner("Describing Cognito User Pool Client\n", func() error {
 		res, err := svc.client.DescribeUserPoolClient(context.TODO(), &cognitoidentityprovider.DescribeUserPoolClientInput{
-			UserPoolId: &userPoolId,
-			ClientId:   &clientId,
+			UserPoolId: &userPoolID,
+			ClientId:   &clientID,
 		})
 		if err != nil {
 			return fmt.Errorf("could not describe user pool client: %w", err)
@@ -104,7 +104,7 @@ func (svc *awsservice) ListUsersPools() ([]types.UserPoolDescriptionType, error)
 	return pools, err
 }
 
-func (svc *awsservice) ListUserPoolClients(poolId string) ([]types.UserPoolClientDescription, error) {
+func (svc *awsservice) ListUserPoolClients(poolID string) ([]types.UserPoolClientDescription, error) {
 	var clients []types.UserPoolClientDescription
 
 	err := ui.WithSpinner("Retrieving Cognito Clients\n", func() error {
@@ -113,7 +113,7 @@ func (svc *awsservice) ListUserPoolClients(poolId string) ([]types.UserPoolClien
 
 		for {
 			res, err := svc.client.ListUserPoolClients(context.TODO(), &cognitoidentityprovider.ListUserPoolClientsInput{
-				UserPoolId: &poolId,
+				UserPoolId: &poolID,
 				MaxResults: &maxResult,
 				NextToken:  nextToken,
 			})

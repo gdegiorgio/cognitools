@@ -21,7 +21,6 @@ func runListCommand(cmd *cobra.Command, args []string) error {
 
 func list(cmd *cobra.Command, args []string, svc service.AWS) error {
 	pools, err := svc.ListUsersPools()
-
 	if err != nil {
 		cmd.Printf("❌ could not list user pools: %v\n", err)
 		return err

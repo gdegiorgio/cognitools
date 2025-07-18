@@ -64,11 +64,11 @@ func TestList(t *testing.T) {
 // Mock service for empty results
 type mockAWSServiceEmpty struct{}
 
-func (m *mockAWSServiceEmpty) DescribeUserPool(poolId string) (types.UserPoolType, error) {
+func (m *mockAWSServiceEmpty) DescribeUserPool(poolID string) (types.UserPoolType, error) {
 	return types.UserPoolType{}, nil
 }
 
-func (m *mockAWSServiceEmpty) DescribeUserPoolClient(userPoolId, clientId string) (types.UserPoolClientType, error) {
+func (m *mockAWSServiceEmpty) DescribeUserPoolClient(userPoolID, clientID string) (types.UserPoolClientType, error) {
 	return types.UserPoolClientType{}, nil
 }
 
@@ -76,7 +76,7 @@ func (m *mockAWSServiceEmpty) ListUsersPools() ([]types.UserPoolDescriptionType,
 	return []types.UserPoolDescriptionType{}, nil
 }
 
-func (m *mockAWSServiceEmpty) ListUserPoolClients(poolId string) ([]types.UserPoolClientDescription, error) {
+func (m *mockAWSServiceEmpty) ListUserPoolClients(poolID string) ([]types.UserPoolClientDescription, error) {
 	return []types.UserPoolClientDescription{}, nil
 }
 

@@ -21,9 +21,9 @@ func runListCommand(cmd *cobra.Command, args []string) error {
 }
 
 func list(cmd *cobra.Command, args []string, svc service.AWS) error {
-	poolId := args[0]
+	poolID := args[0]
 
-	clients, err := svc.ListUserPoolClients(poolId)
+	clients, err := svc.ListUserPoolClients(poolID)
 	if err != nil {
 		cmd.Printf("❌ %s\n", formatAWSError(err))
 		return err
@@ -34,26 +34,17 @@ func list(cmd *cobra.Command, args []string, svc service.AWS) error {
 		return nil
 	}
 
-	// Check if parent command has JSON flag
-	outputJSON, _ := cmd.Flags().GetBool("json")
-	if !cmd.Flags().Changed("json") {
-		// Check parent command for JSON flag
-		if parent := cmd.Parent(); parent != nil {
-			if parent.Flags().Lookup("json") != nil {
-				outputJSON, _ = parent.Flags().GetBool("json")
-			}
-		}
-	}
-
+	outputJSON := getJSONFlag(cmd)
 	if outputJSON {
 		json, _ := utils.FormatJSON(clients)
 		cmd.Println(json)
-	} else {
-		cmd.Println("👤 User Pool Clients:")
-		for _, client := range clients {
-			cmd.Printf("  %s - %s\n", *client.ClientName, *client.ClientId)
-		}
+		return nil
 	}
-	
+
+	cmd.Println("👤 User Pool Clients:")
+	for _, client := range clients {
+		cmd.Printf("  %s - %s\n", *client.ClientName, *client.ClientId)
+	}
+
 	return nil
 }

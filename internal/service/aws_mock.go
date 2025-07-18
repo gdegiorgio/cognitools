@@ -8,20 +8,20 @@ import (
 
 type AwsMockService struct{}
 
-func (a *AwsMockService) DescribeUserPoolClient(userPoolId, clientId string) (types.UserPoolClientType, error) {
+func (a *AwsMockService) DescribeUserPoolClient(userPoolID, clientID string) (types.UserPoolClientType, error) {
 	clientName := "Test Client"
 	return types.UserPoolClientType{
-		ClientId:   &clientId,
-		UserPoolId: &userPoolId,
+		ClientId:   &clientID,
+		UserPoolId: &userPoolID,
 		ClientName: &clientName,
 	}, nil
 }
 
-func (a *AwsMockService) DescribeUserPool(poolId string) (types.UserPoolType, error) {
+func (a *AwsMockService) DescribeUserPool(poolID string) (types.UserPoolType, error) {
 	name := "Test User Pool"
 	status := types.StatusTypeEnabled
 	return types.UserPoolType{
-		Id:               &poolId,
+		Id:               &poolID,
 		Name:             &name,
 		Status:           status,
 		CreationDate:     &time.Time{},
@@ -40,12 +40,12 @@ func (a *AwsMockService) ListUsersPools() ([]types.UserPoolDescriptionType, erro
 	}, nil
 }
 
-func (a *AwsMockService) ListUserPoolClients(poolId string) ([]types.UserPoolClientDescription, error) {
+func (a *AwsMockService) ListUserPoolClients(poolID string) ([]types.UserPoolClientDescription, error) {
 	name := "Test Client"
-	clientId := "1234567890abcdef"
+	clientID := "1234567890abcdef"
 	return []types.UserPoolClientDescription{
 		{
-			ClientId:   &clientId,
+			ClientId:   &clientID,
 			ClientName: &name,
 		},
 	}, nil

@@ -71,13 +71,13 @@ func TestDescribe(t *testing.T) {
 // Mock service for error testing
 type mockAWSServiceWithError struct{}
 
-func (m *mockAWSServiceWithError) DescribeUserPool(poolId string) (types.UserPoolType, error) {
+func (m *mockAWSServiceWithError) DescribeUserPool(poolID string) (types.UserPoolType, error) {
 	return types.UserPoolType{}, &types.ResourceNotFoundException{
 		Message: stringPtr("User pool not found"),
 	}
 }
 
-func (m *mockAWSServiceWithError) DescribeUserPoolClient(userPoolId, clientId string) (types.UserPoolClientType, error) {
+func (m *mockAWSServiceWithError) DescribeUserPoolClient(userPoolID, clientID string) (types.UserPoolClientType, error) {
 	return types.UserPoolClientType{}, nil
 }
 
@@ -85,7 +85,7 @@ func (m *mockAWSServiceWithError) ListUsersPools() ([]types.UserPoolDescriptionT
 	return nil, nil
 }
 
-func (m *mockAWSServiceWithError) ListUserPoolClients(poolId string) ([]types.UserPoolClientDescription, error) {
+func (m *mockAWSServiceWithError) ListUserPoolClients(poolID string) ([]types.UserPoolClientDescription, error) {
 	return nil, nil
 }
 
