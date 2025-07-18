@@ -38,7 +38,6 @@ func describe(cmd *cobra.Command, args []string, svc service.AWS) error {
 	cmd.Printf("🏖️ User Pool Details:\n")
 	cmd.Printf("Name: %s\n", *pool.Name)
 	cmd.Printf("ID: %s\n", *pool.Id)
-	cmd.Printf("Status: %s\n", pool.Status)
 	cmd.Printf("Creation Date: %s\n", pool.CreationDate.Format("2006-01-02 15:04:05"))
 	cmd.Printf("Last Modified: %s\n", pool.LastModifiedDate.Format("2006-01-02 15:04:05"))
 
