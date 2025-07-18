@@ -1,6 +1,8 @@
 package service
 
 import (
+	"time"
+
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types"
 )
 
@@ -17,9 +19,13 @@ func (a *AwsMockService) DescribeUserPoolClient(userPoolId, clientId string) (ty
 
 func (a *AwsMockService) DescribeUserPool(poolId string) (types.UserPoolType, error) {
 	name := "Test User Pool"
+	status := types.StatusTypeEnabled
 	return types.UserPoolType{
-		Id:   &poolId,
-		Name: &name,
+		Id:               &poolId,
+		Name:             &name,
+		Status:           status,
+		CreationDate:     &time.Time{},
+		LastModifiedDate: &time.Time{},
 	}, nil
 }
 

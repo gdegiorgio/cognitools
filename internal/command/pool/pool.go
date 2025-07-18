@@ -1,6 +1,9 @@
 package pool
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/gdegiorgio/cognitools/internal/command/pool/clients"
+	"github.com/spf13/cobra"
+)
 
 var outputJSON bool
 
@@ -14,5 +17,7 @@ func NewCommand() *cobra.Command {
 	poolCmd.PersistentFlags().BoolVar(&outputJSON, "json", false, "Output in JSON format")
 
 	poolCmd.AddCommand(newListCommand())
+	poolCmd.AddCommand(newDescribeCommand())
+	poolCmd.AddCommand(clients.NewCommand())
 	return poolCmd
 }
