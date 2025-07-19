@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.0.5] - 2025-07-19
+### :sparkles: New Features
+- [`ca9be21`](https://github.com/gdegiorgio/cognitools/commit/ca9be21770fbaf83996f1f1ea4b4feaadeec2851) - implement `pool` subcommand *(PR [#7](https://github.com/gdegiorgio/cognitools/pull/7) by [@gdegiorgio](https://github.com/gdegiorgio))*
+
+### :white_check_mark: Tests
+- [`b64d523`](https://github.com/gdegiorgio/cognitools/commit/b64d52374f5aca2c0772ac0f23ba9857f4eb6328) - add unit tests *(PR [#6](https://github.com/gdegiorgio/cognitools/pull/6) by [@gdegiorgio](https://github.com/gdegiorgio))*
+
+### :wrench: Chores
+- [`c26224e`](https://github.com/gdegiorgio/cognitools/commit/c26224edd43dbd6acb9b59aecaf4962bd1dec9f8) - remove duplicated license file *(commit by [@gdegiorgio](https://github.com/gdegiorgio))*
+
+
 ## [v0.0.4] - 2025-07-10
 ### :sparkles: New Features
 - [`97540d4`](https://github.com/gdegiorgio/cognitools/commit/97540d47c1d218f2d1035195ca5f044fa790e96e) - implement cognito http request *(PR [#4](https://github.com/gdegiorgio/cognitools/pull/4) by [@gdegiorgio](https://github.com/gdegiorgio))*
@@ -27,3 +38,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v0.0.2]: https://github.com/gdegiorgio/cognitools/compare/v0.0.1...v0.0.2
 [v0.0.3]: https://github.com/gdegiorgio/cognitools/compare/v0.0.2...v0.0.3
 [v0.0.4]: https://github.com/gdegiorgio/cognitools/compare/v0.0.3...v0.0.4
+[v0.0.5]: https://github.com/gdegiorgio/cognitools/compare/v0.0.4...v0.0.5
