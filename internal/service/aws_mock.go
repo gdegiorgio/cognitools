@@ -10,19 +10,23 @@ type AwsMockService struct{}
 
 func (a *AwsMockService) DescribeUserPoolClient(userPoolID, clientID string) (types.UserPoolClientType, error) {
 	clientName := "Test Client"
+	clientSecret := "test-client-secret"
 	return types.UserPoolClientType{
-		ClientId:   &clientID,
-		UserPoolId: &userPoolID,
-		ClientName: &clientName,
+		ClientId:     &clientID,
+		UserPoolId:   &userPoolID,
+		ClientName:   &clientName,
+		ClientSecret: &clientSecret,
 	}, nil
 }
 
 func (a *AwsMockService) DescribeUserPool(poolID string) (types.UserPoolType, error) {
 	name := "Test User Pool"
+	domain := "test-domain"
 	status := types.StatusTypeEnabled
 	return types.UserPoolType{
 		Id:               &poolID,
 		Name:             &name,
+		Domain:           &domain,
 		Status:           status,
 		CreationDate:     &time.Time{},
 		LastModifiedDate: &time.Time{},
