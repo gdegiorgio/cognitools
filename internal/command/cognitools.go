@@ -1,6 +1,10 @@
 package command
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/gdegiorgio/cognitools/internal/command/generate"
+	"github.com/gdegiorgio/cognitools/internal/command/pool"
+	"github.com/spf13/cobra"
+)
 
 func NewRootCommand() *cobra.Command {
 
@@ -9,7 +13,8 @@ func NewRootCommand() *cobra.Command {
 		Short: "Cognito Tools CLI",
 	}
 
-	root.AddCommand(NewGenerateCommand())
+	root.AddCommand(generate.NewCommand())
+	root.AddCommand(pool.NewCommand())
 
 	return root
 }
